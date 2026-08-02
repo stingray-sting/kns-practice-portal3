@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNS Practice Portal - Legal Practice Management System</title>
+    <!-- CSS Design System -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- ==========================================================================
+       AUTHENTICATION PAGE WRAPPER
+       ========================================================================== -->
+    <div id="auth-container" class="auth-page">
+        
+        <!-- View: Login Screen -->
+        <div id="auth-login" class="auth-card">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div class="brand-icon" style="margin: 0 auto 12px; width: 48px; height: 48px; font-size: 24px;">KNS</div>
+                <h2>KNS PRACTICE PORTAL</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Enterprise Practice Management Workspace</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Work Email</label>
+                <input type="email" id="login-email" class="form-control" placeholder="counsel@knslaw.com" value="admin@knslaw.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="login-password" class="form-control" placeholder="••••••••" value="password123">
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 13px;">
+                <label class="checkbox-group">
+                    <input type="checkbox" checked> Remember me
+                </label>
+                <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 500;" onclick="switchAuthView('auth-forgot')">Forgot Password?</a>
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%;" onclick="processLogin()">Authenticate Session</button>
+            
+            <div style="margin-top: 24px; text-align: center; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Fast Role Bypass Simulator</p>
+                <button class="btn btn-outline btn-sm" onclick="switchAuthView('auth-roles')">Select Security Role</button>
+            </div>
+        </div>
+
+        <!-- View: Forgot Password Screen -->
+        <div id="auth-forgot" class="auth-card" style="display: none;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2>Reset Credential Keys</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Enter your workspace email to receive security key reset steps</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Work Email Address</label>
+                <input type="email" id="forgot-email" class="form-control" placeholder="counsel@knslaw.com">
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 16px;" onclick="simulateForgotReset()">Send Recovery Instructions</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="switchAuthView('auth-login')">Back to Sign In</button>
+        </div>
+
+        <!-- View: Reset Password Screen -->
+        <div id="auth-reset" class="auth-card" style="display: none;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2>Define New Credentials</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Create a secure cryptographic password for your legal logbook</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">New Security Key</label>
+                <input type="password" class="form-control" placeholder="••••••••">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Confirm New Security Key</label>
+                <input type="password" class="form-control" placeholder="••••••••">
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%;" onclick="simulatePasswordChange()">Confirm Passcode Change</button>
+        </div>
+
+        <!-- View: 2FA Screen -->
+        <div id="auth-2fa" class="auth-card" style="display: none;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2>Two-Factor Autograph</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">We sent a verification PIN code to your corporate phone register</p>
+            </div>
+            
+            <div class="form-group" style="display: flex; gap: 12px; justify-content: center;">
+                <input type="text" class="form-control" style="width: 50px; text-align: center; font-size: 20px; font-weight: 700;" value="4" maxlength="1">
+                <input type="text" class="form-control" style="width: 50px; text-align: center; font-size: 20px; font-weight: 700;" value="9" maxlength="1">
+                <input type="text" class="form-control" style="width: 50px; text-align: center; font-size: 20px; font-weight: 700;" value="2" maxlength="1">
+                <input type="text" class="form-control" style="width: 50px; text-align: center; font-size: 20px; font-weight: 700;" value="1" maxlength="1">
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 16px;" onclick="verifyTwoFactor()">Verify Identity</button>
+            <p style="font-size: 12px; color: var(--text-muted); text-align: center;">Didn't receive code? <a href="#" style="color: var(--primary);">Resend PIN</a></p>
+        </div>
+
+        <!-- View: Role Selection Screen -->
+        <div id="auth-roles" class="auth-card" style="display: none;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h2>Workspace Role Identity</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Choose a practice avatar to simulate role-based dashboards</p>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                <button class="btn btn-outline" style="justify-content: flex-start;" onclick="simulateRoleBypass('admin')">
+                    <i data-lucide="shield-check" style="color: var(--primary);"></i>
+                    <div style="text-align: left; margin-left: 8px;">
+                        <strong style="display: block; font-size: 13px;">Firm Admin</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">Full dashboard overview, accounting audit logs</span>
+                    </div>
+                </button>
+                
+                <button class="btn btn-outline" style="justify-content: flex-start;" onclick="simulateRoleBypass('lawyer')">
+                    <i data-lucide="briefcase" style="color: var(--success);"></i>
+                    <div style="text-align: left; margin-left: 8px;">
+                        <strong style="display: block; font-size: 13px;">Senior Counsel / Partner</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">AI Drafting workspace, cases, consultation calendars</span>
+                    </div>
+                </button>
+                
+                <button class="btn btn-outline" style="justify-content: flex-start;" onclick="simulateRoleBypass('junior_lawyer')">
+                    <i data-lucide="award" style="color: var(--info);"></i>
+                    <div style="text-align: left; margin-left: 8px;">
+                        <strong style="display: block; font-size: 13px;">Junior Advocate</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">Task workflows, document repository, legal research</span>
+                    </div>
+                </button>
+                
+                <button class="btn btn-outline" style="justify-content: flex-start;" onclick="simulateRoleBypass('receptionist')">
+                    <i data-lucide="user-check" style="color: var(--warning);"></i>
+                    <div style="text-align: left; margin-left: 8px;">
+                        <strong style="display: block; font-size: 13px;">Front Desk Receptionist</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">Client registrations, consultation appointments docket</span>
+                    </div>
+                </button>
+                
+                <button class="btn btn-outline" style="justify-content: flex-start;" onclick="simulateRoleBypass('accountant')">
+                    <i data-lucide="wallet" style="color: #8B5CF6;"></i>
+                    <div style="text-align: left; margin-left: 8px;">
+                        <strong style="display: block; font-size: 13px;">Finance Officer</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">Billing invoices, receipts log ledger, expense charts</span>
+                    </div>
+                </button>
+                
+                <button class="btn btn-outline" style="justify-content: flex-start;" onclick="simulateRoleBypass('client')">
+                    <i data-lucide="user" style="color: var(--text-muted);"></i>
+                    <div style="text-align: left; margin-left: 8px;">
+                        <strong style="display: block; font-size: 13px;">Corporate Client (Tata Sons)</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">Privileged document uploads, consultation summary records</span>
+                    </div>
+                </button>
+            </div>
+            
+            <button class="btn btn-outline" style="width: 100%;" onclick="switchAuthView('auth-login')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       MAIN PORTAL LAYOUT SHELL
+       ========================================================================== -->
+    <div id="portal-container" class="portal-container" style="display: none;">
+        
+        <!-- Left Navigation Sidebar -->
+        <aside id="app-sidebar" class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo-vertical">
+                    <span class="brand-logo-kns">KNS</span>
+                    <span class="brand-logo-sub">LAW CHAMBERS</span>
+                </div>
+                <button class="sidebar-close-btn" onclick="toggleSidebar()">&times;</button>
+            </div>
+            
+            <div class="sidebar-menu" style="padding: 16px 8px;">
+                <button class="menu-link active" onclick="switchView('dashboard')">
+                    <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+                </button>
+                <button class="menu-link" onclick="switchView('crm')">
+                    <i data-lucide="user-plus"></i><span>Client Registration</span>
+                </button>
+                <button class="menu-link" onclick="switchView('kyc')">
+                    <i data-lucide="shield-check"></i><span>KYC Verification</span>
+                </button>
+                <button class="menu-link" onclick="switchView('consultations')">
+                    <i data-lucide="calendar"></i><span>Consultation Management</span>
+                </button>
+                <button class="menu-link" onclick="switchView('video-consultation')">
+                    <i data-lucide="video"></i><span>Video Consultation</span>
+                </button>
+                <button class="menu-link" onclick="switchView('consultation-summary')">
+                    <i data-lucide="file-check"></i><span>AI Consultation Summary</span>
+                </button>
+                <button class="menu-link" onclick="switchView('documents')">
+                    <i data-lucide="folder-open"></i><span>Document Management</span>
+                </button>
+                <button class="menu-link" onclick="switchView('ocr')">
+                    <i data-lucide="scan"></i><span>OCR & Scanning</span>
+                </button>
+                <button class="menu-link" onclick="switchView('ai-drafting')">
+                    <i data-lucide="pen-tool"></i><span>AI Drafting</span>
+                </button>
+                <button class="menu-link" onclick="switchView('research')">
+                    <i data-lucide="search"></i><span>Legal Research</span>
+                </button>
+                <button class="menu-link" onclick="switchView('cases')">
+                    <i data-lucide="gavel"></i><span>Case Management</span>
+                </button>
+                <button class="menu-link" onclick="switchView('kanban')">
+                    <i data-lucide="list-todo"></i><span>Workflow Management</span>
+                </button>
+                <button class="menu-link" onclick="switchView('accounts')">
+                    <i data-lucide="wallet"></i><span>Accounts</span>
+                </button>
+                <button class="menu-link" onclick="switchView('hr')">
+                    <i data-lucide="users"></i><span>HR</span>
+                </button>
+                <button class="menu-link" onclick="switchView('reports')">
+                    <i data-lucide="line-chart"></i><span>Reports</span>
+                </button>
+                <button class="menu-link" onclick="switchView('admin')">
+                    <i data-lucide="settings"></i><span>Administration</span>
+                </button>
+                <button class="menu-link" onclick="switchView('user-management')">
+                    <i data-lucide="user-check"></i><span>User Management</span>
+                </button>
+                <button class="menu-link" onclick="switchView('audit')">
+                    <i data-lucide="history"></i><span>Audit Trail</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-footer" style="padding: 0; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                <button class="menu-link collapse-menu-btn" onclick="toggleSidebar()" style="border-radius: 0; padding: 16px 20px; color: rgba(255,255,255,0.6); gap: 12px; border: none; font-size:12px; font-weight:700; width:100%; display:flex; align-items:center;">
+                    <i data-lucide="chevron-left" style="width:16px;"></i><span>COLLAPSE MENU</span>
+                </button>
+            </div>
+        </aside>
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Right Core Main Workspace -->
+        <main class="main-wrapper">
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <!-- Global Search Box -->
+                    <div class="topbar-search-wrapper" onclick="openSearchPalette()">
+                        <input type="text" class="topbar-search-input" placeholder="Search by Client, Case ID, Matter, or Document..." readonly>
+                        <i data-lucide="search" class="topbar-search-icon"></i>
+                    </div>
+                    <span id="breadcrumb-current-view" style="display:none;"></span>
+                </div>
+                
+                <div class="top-bar-right">
+                    <!-- Notification Bell -->
+                    <button class="icon-badge-btn" onclick="toggleNotificationDrawer()">
+                        <i data-lucide="bell"></i>
+                        <span id="notif-count-badge" class="icon-badge-dot" style="display:flex; justify-content:center; align-items:center; color:white; font-size:9px; background:var(--danger); border:1px solid white; width:16px; height:16px; top:-2px; right:-2px;">12</span>
+                    </button>
+                    
+                    <!-- Theme Toggle -->
+                    <button class="icon-badge-btn" onclick="toggleTheme()" title="Toggle Theme">
+                        <i id="theme-icon" data-lucide="sun"></i>
+                    </button>
+                    
+                    <!-- Profile Preferences matching Image -->
+                    <div class="profile-header-container" onclick="openProfileModal()">
+                        <div id="user-avatar" class="profile-header-avatar">RK</div>
+                        <div class="profile-header-details">
+                            <span id="user-name" class="profile-header-name">Ramesh Kumar</span>
+                            <span id="user-role-lbl" class="profile-header-role">District Manager</span>
+                        </div>
+                        <i data-lucide="settings" class="profile-header-settings-icon"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Workspace Panels View Manager -->
+            <div class="workspace-wrapper">
+                <div class="workspace-canvas">
+                    
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 1: ENTERPRISE DASHBOARD -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-dashboard" class="workspace-view active">
+                        <!-- Dashboard View Header -->
+                        <div class="card-title-bar" style="margin-bottom: 24px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h1 style="font-size:24px; font-weight:700;">Dashboard</h1>
+                                <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Overview of today's activities and pending tasks</p>
+                            </div>
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <div class="dashboard-date-selector" style="display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border-subtle); padding:8px 12px; border-radius:8px; font-size:13px; font-weight:500;">
+                                    <span>20 May 2025</span>
+                                    <i data-lucide="calendar" style="width:16px; height:16px; color:var(--text-muted);"></i>
+                                </div>
+                                <button class="btn btn-primary" onclick="renderDashboardStats()"><i data-lucide="refresh-cw" style="width:14px; height:14px;"></i><span>Refresh</span></button>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div id="stats-container" class="stat-grid" style="display:grid; grid-template-columns: repeat(6, 1fr); gap: 16px;">
+                            <!-- New Clients -->
+                            <div class="stat-card" style="padding:16px;">
+                                <span class="stat-label">New Clients</span>
+                                <span class="stat-value" id="stat-val-clients" style="font-size:22px; font-weight:700;">25</span>
+                                <span class="stat-trend up" style="font-size:10px;"><i data-lucide="trending-up"></i> + 15% <span style="color:var(--text-muted); font-weight:400;">from yesterday</span></span>
+                            </div>
+                            <!-- Consultations -->
+                            <div class="stat-card" style="padding:16px;">
+                                <span class="stat-label">Consultations</span>
+                                <span class="stat-value" id="stat-val-calls" style="font-size:22px; font-weight:700;">18</span>
+                                <span class="stat-trend up" style="font-size:10px;"><i data-lucide="trending-up"></i> + 8% <span style="color:var(--text-muted); font-weight:400;">from yesterday</span></span>
+                            </div>
+                            <!-- Drafts Pending -->
+                            <div class="stat-card" style="padding:16px;">
+                                <span class="stat-label">Drafts Pending</span>
+                                <span class="stat-value" id="stat-val-drafts" style="font-size:22px; font-weight:700;">42</span>
+                                <span class="stat-trend down" style="font-size:10px; color:var(--danger);"><i data-lucide="trending-up"></i> + 12% <span style="color:var(--text-muted); font-weight:400;">from yesterday</span></span>
+                            </div>
+                            <!-- Ready for Review -->
+                            <div class="stat-card" style="padding:16px;">
+                                <span class="stat-label">Ready for Review</span>
+                                <span class="stat-value" id="stat-val-review" style="font-size:22px; font-weight:700;">11</span>
+                                <span class="stat-trend up" style="font-size:10px;"><i data-lucide="trending-up"></i> + 2% <span style="color:var(--text-muted); font-weight:400;">from yesterday</span></span>
+                            </div>
+                            <!-- Cases Filed -->
+                            <div class="stat-card" style="padding:16px;">
+                                <span class="stat-label">Cases Filed</span>
+                                <span class="stat-value" id="stat-val-cases" style="font-size:22px; font-weight:700;">7</span>
+                                <span class="stat-trend down" style="font-size:10px; color:var(--danger);"><i data-lucide="trending-down"></i> - 3% <span style="color:var(--text-muted); font-weight:400;">from yesterday</span></span>
+                            </div>
+                            <!-- Revenue Today -->
+                            <div class="stat-card" style="padding:16px;">
+                                <span class="stat-label">Revenue Today</span>
+                                <span class="stat-value" id="stat-val-revenue" style="font-size:22px; font-weight:700;">₹1,85,000</span>
+                                <span class="stat-trend up" style="font-size:10px;"><i data-lucide="trending-up"></i> + 18% <span style="color:var(--text-muted); font-weight:400;">from yesterday</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid-3">
+                            <!-- Column 1: AI Alert Panel & Queue -->
+                            <div style="grid-column: span 2;">
+                                <!-- AI Alerts Panel -->
+                                <div class="card" style="border-left: 4px solid var(--danger);">
+                                    <div class="card-title-bar">
+                                        <h3><i data-lucide="alert-triangle" style="vertical-align: middle; color:var(--danger); margin-right:8px; display:inline-block;"></i>Urgent AI Alerts & Compliance</h3>
+                                        <span class="badge badge-danger">6 Critical</span>
+                                    </div>
+                                    <div id="ai-alerts-list" style="display: flex; flex-direction: column; gap: 10px;">
+                                        <div class="notification-item unread" style="margin-bottom:0; padding:10px;">
+                                            <span style="color:var(--danger); font-weight:600; font-size:12px;">[Filing Deadline]</span> 
+                                            Tata Sons vs. CCI Rejoinder Brief must be submitted to Supreme Court in <strong>48 hours</strong>. No draft signed.
+                                        </div>
+                                        <div class="notification-item unread" style="margin-bottom:0; padding:10px;">
+                                            <span style="color:var(--danger); font-weight:600; font-size:12px;">[Missing Document]</span> 
+                                            Reliance Retail Retainer lacks PAN KYC file. OCR cannot perform contract check.
+                                        </div>
+                                        <div class="notification-item unread" style="margin-bottom:0; padding:10px;">
+                                            <span style="color:var(--warning); font-weight:600; font-size:12px;">[SLA Exceeded]</span> 
+                                            Drafting Agreement for Infosys has sat in "Review" stage for 6 days (SLA Target: 3 days).
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Pending Work Queue Table -->
+                                <div class="card">
+                                    <div class="card-title-bar">
+                                        <h3>Pending Work Queue</h3>
+                                        <div style="display:flex; gap: 8px;">
+                                            <input type="text" id="queue-search" class="form-control btn-sm" placeholder="Filter queue..." onkeyup="filterQueueTable()">
+                                            <select id="queue-priority-filter" class="form-control btn-sm" style="width: 120px;" onchange="filterQueueTable()">
+                                                <option value="">All Priorities</option>
+                                                <option value="Urgent">Urgent</option>
+                                                <option value="High">High</option>
+                                                <option value="Medium">Medium</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="table-wrapper">
+                                        <table class="data-table" id="queue-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Priority</th>
+                                                    <th>Client</th>
+                                                    <th>Matter</th>
+                                                    <th>Assigned Lawyer</th>
+                                                    <th>Due Date</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="queue-tbody">
+                                                <!-- Dynamic rows filled by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Column 2: Calendar widget and charts -->
+                            <div>
+                                <!-- Mini Calendar Appointments -->
+                                <div class="card">
+                                    <div class="card-title-bar">
+                                        <h3>Filing & Court Scheduler</h3>
+                                        <button class="btn btn-secondary btn-sm" onclick="openConsultationModal()">+ Book</button>
+                                    </div>
+                                    
+                                    <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-element); padding: 12px; text-align: center; margin-bottom: 16px;">
+                                        <div style="font-weight: 700; font-size: 14px; margin-bottom: 8px;">July 2026</div>
+                                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 11px;">
+                                            <span style="color:var(--text-muted);">Su</span><span style="color:var(--text-muted);">Mo</span><span style="color:var(--text-muted);">Tu</span><span style="color:var(--text-muted);">We</span><span style="color:var(--text-muted);">Th</span><span style="color:var(--text-muted);">Fr</span><span style="color:var(--text-muted);">Sa</span>
+                                            <span></span><span></span><span></span><span>1</span><span>2</span><span>3</span><span>4</span>
+                                            <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span>
+                                            <span style="background-color: var(--primary); color: white; border-radius:50%; font-weight:600;">12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span>
+                                            <span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span>
+                                            <span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="dashboard-events-list" style="display:flex; flex-direction:column; gap:8px;">
+                                        <!-- Scheduled appointments loaded by JS -->
+                                    </div>
+                                </div>
+                                
+                                <!-- Analytics quick visualizer -->
+                                <div class="card">
+                                    <div class="card-title-bar">
+                                        <h3>Case Performance Analytics</h3>
+                                    </div>
+                                    <!-- Dynamic SVG Graph -->
+                                    <div style="display:flex; justify-content:center; align-items:center; height: 160px; position:relative;">
+                                        <svg viewBox="0 0 100 100" style="width: 140px; height: 140px;">
+                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-subtle)" stroke-width="12"></circle>
+                                            <!-- Success segment -->
+                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--success)" stroke-width="12" stroke-dasharray="188.4 251.2" stroke-dashoffset="0"></circle>
+                                            <!-- Ongoing segment -->
+                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--primary)" stroke-width="12" stroke-dasharray="50.2 251.2" stroke-dashoffset="-188.4"></circle>
+                                            <!-- Appeal segment -->
+                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--warning)" stroke-width="12" stroke-dasharray="12.6 251.2" stroke-dashoffset="-238.6"></circle>
+                                        </svg>
+                                        <div style="position: absolute; text-align: center;">
+                                            <div style="font-size: 20px; font-weight: 700; color:var(--text-primary);">82%</div>
+                                            <div style="font-size: 9px; color:var(--text-muted); text-transform:uppercase;">Win Ratio</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-around; font-size:11px; margin-top: 12px;">
+                                        <span><span style="display:inline-block; width:8px; height:8px; background:var(--success); border-radius:50%; margin-right:4px;"></span>Closed Success</span>
+                                        <span><span style="display:inline-block; width:8px; height:8px; background:var(--primary); border-radius:50%; margin-right:4px;"></span>Ongoing Trial</span>
+                                        <span><span style="display:inline-block; width:8px; height:8px; background:var(--warning); border-radius:50%; margin-right:4px;"></span>Appeal</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 2: CLIENT CRM MANAGEMENT -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-crm" class="workspace-view">
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>CRM Profile Directory</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Manage client intake records, Aadhaar/PAN KYC uploads, and OCR verification</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openClientRegModal()">+ Add Client Intake</button>
+                            </div>
+                            
+                            <div style="display:flex; gap:12px; margin-bottom: 20px;">
+                                <input type="text" id="crm-search" class="form-control" placeholder="Search clients by name, Aadhaar or pan..." onkeyup="renderCRMTable()">
+                                <select id="crm-type-filter" class="form-control" style="width: 180px;" onchange="renderCRMTable()">
+                                    <option value="">All Categories</option>
+                                    <option value="Corporate">Corporate Entities</option>
+                                    <option value="Individual">Individual Litigant</option>
+                                </select>
+                            </div>
+                            
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Client Name</th>
+                                            <th>Type</th>
+                                            <th>Corporate ID / PAN</th>
+                                            <th>KYC Documents</th>
+                                            <th>Status</th>
+                                            <th>Ingest Timeline</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="crm-tbody">
+                                        <!-- Dynamic JS content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- CRM Details Sub-View (Shows below when client selected) -->
+                        <div id="crm-detail-section" class="card" style="display:none; border-top: 4px solid var(--primary);">
+                            <div class="card-title-bar">
+                                <h3>Client Dossier: <span id="crm-det-name">Company Name</span></h3>
+                                <button class="btn btn-outline btn-sm" onclick="closeCRMDetails()">Close Dossier</button>
+                            </div>
+                            
+                            <div class="grid-3" style="margin-bottom: 24px;">
+                                <div>
+                                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">KYC METADATA VALUES</h4>
+                                    <p style="font-size:13.5px; margin-bottom:6px;"><strong>Email:</strong> <span id="crm-det-email"></span></p>
+                                    <p style="font-size:13.5px; margin-bottom:6px;"><strong>Phone:</strong> <span id="crm-det-phone"></span></p>
+                                    <p style="font-size:13.5px; margin-bottom:6px;"><strong>Address:</strong> <span id="crm-det-address"></span></p>
+                                </div>
+                                <div>
+                                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">REGULATORY COMPLIANCE</h4>
+                                    <p style="font-size:13.5px; margin-bottom:6px;"><strong>PAN ID:</strong> <span id="crm-det-pan"></span></p>
+                                    <p style="font-size:13.5px; margin-bottom:6px;"><strong>Aadhaar No:</strong> <span id="crm-det-aadhaar"></span></p>
+                                    <p style="font-size:13.5px; margin-bottom:6px;"><strong>GST Tax ID:</strong> <span id="crm-det-gst"></span></p>
+                                </div>
+                                <div>
+                                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">KYC VERIFICATION FLOW</h4>
+                                    <div style="background-color: var(--bg-workspace); border: 1px solid var(--border-subtle); border-radius: var(--radius-element); padding:10px; font-size:11px;">
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span>Document OCR Match:</span><strong id="crm-det-ocr-status" class="badge badge-success">98% Match</strong>
+                                        </div>
+                                        <div style="display:flex; justify-content:space-between;">
+                                            <span>AI KYC Audits:</span><strong id="crm-det-ai-status" class="badge badge-success">Approved</strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- KYC Upload File Trigger -->
+                                    <div style="margin-top: 10px;">
+                                        <input type="file" id="kyc-file-upload-input" style="display:none;" onchange="handleKYCDocUpload()">
+                                        <button class="btn btn-secondary btn-sm" style="width: 100%;" onclick="triggerKYCUploadField()">
+                                            <i data-lucide="upload"></i> Upload Identity KYC Brief
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 20px 0;">
+                            
+                            <div class="grid-2">
+                                <div>
+                                    <h4>Corporate Engagement History</h4>
+                                    <div class="timeline" id="crm-det-timeline" style="font-size:12.5px;">
+                                        <!-- Timelines are inserted dynamically -->
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4>Active Cases & Disputes</h4>
+                                    <div id="crm-det-cases" style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+                                        <!-- Cases loaded dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 3: LEGAL CASE MANAGEMENT -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-cases" class="workspace-view">
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>Case Registry Dashboard</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Manage dispute case files, court schedules, counsel teams, and filings milestones</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openCaseCreateModal()">+ Create Case Docket</button>
+                            </div>
+                            
+                            <div style="display:flex; gap:12px; margin-bottom: 20px;">
+                                <input type="text" id="case-search" class="form-control" placeholder="Search case numbers, courts, counsels..." onkeyup="renderCasesTable()">
+                                <select id="case-status-filter" class="form-control" style="width: 180px;" onchange="renderCasesTable()">
+                                    <option value="">All Statuses</option>
+                                    <option value="Open">Open (In Court)</option>
+                                    <option value="Drafting">Drafting Brief</option>
+                                    <option value="Review">Review Panel</option>
+                                    <option value="Filed">Filed / Registered</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                            
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Case ID</th>
+                                            <th>Matter Title</th>
+                                            <th>Jurisdiction Court</th>
+                                            <th>Assigned Lead</th>
+                                            <th>Filing Milestone</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="case-tbody">
+                                        <!-- JS loads cases -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Case Details & Milestones Panel -->
+                        <div id="case-detail-section" class="card" style="display:none; border-top: 4px solid var(--primary);">
+                            <div class="card-title-bar">
+                                <h3>Case File Detail: <span id="case-det-id">SLP-4920</span></h3>
+                                <button class="btn btn-outline btn-sm" onclick="closeCaseDetails()">Back to Registry</button>
+                            </div>
+                            
+                            <div class="grid-3" style="margin-bottom:24px;">
+                                <div>
+                                    <span style="font-size:11px; color:var(--text-muted); font-weight:700;">MATTER TITLE</span>
+                                    <p style="font-size:15px; font-weight:600; margin-top:4px;" id="case-det-title"></p>
+                                    <span style="font-size:11px; color:var(--text-muted); font-weight:700; display:block; margin-top:12px;">COURT BENCH</span>
+                                    <p style="font-size:13.5px;" id="case-det-court"></p>
+                                </div>
+                                <div>
+                                    <span style="font-size:11px; color:var(--text-muted); font-weight:700;">LEGAL COUNSEL TEAM</span>
+                                    <p style="font-size:13.5px; margin-top:4px;"><strong>Senior Partner:</strong> <span id="case-det-lead"></span></p>
+                                    <p style="font-size:13.5px; margin-top:4px;"><strong>Associates:</strong> <span id="case-det-team"></span></p>
+                                </div>
+                                <div>
+                                    <span style="font-size:11px; color:var(--text-muted); font-weight:700;">REGISTRATION BRIEF</span>
+                                    <p style="font-size:13.5px; margin-top:4px;"><strong>Next Date:</strong> <span id="case-det-date"></span></p>
+                                    <p style="font-size:13.5px; margin-top:4px;"><strong>Current Stage:</strong> <span id="case-det-status" class="badge"></span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid-2">
+                                <div>
+                                    <h4>Judicial Milestones & Filing Timeline</h4>
+                                    <div class="timeline" id="case-det-timeline">
+                                        <!-- Timeline tags dynamically loaded -->
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4>Matter Documents & Briefs</h4>
+                                    <div id="case-det-docs" style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+                                        <!-- Documents list loaded -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 4: CONSULTATIONS & VIDEO ROOM -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-consultations" class="workspace-view">
+                        <!-- Booking Calendar Hub -->
+                        <div id="consultation-booking-panel" class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>Legal Consultations & Booking Hub</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Schedule attorney meetings, organize video links, and review summary histories</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openConsultationModal()">+ Book New Consultation</button>
+                            </div>
+                            
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Client Name</th>
+                                            <th>Advocate Consultant</th>
+                                            <th>Date & Time</th>
+                                            <th>Type</th>
+                                            <th>Fee</th>
+                                            <th>Status</th>
+                                            <th>Meeting Room</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="consultation-tbody">
+                                        <!-- Dynamic Rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Video consultation interface: Teams inspired -->
+                        <div id="video-consultation-portal" class="video-hub" style="display:none;">
+                            <div class="video-main">
+                                <div class="video-grid">
+                                    <!-- Advocate Feed -->
+                                    <div class="video-frame">
+                                        <div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; background-color:#1E293B; color:var(--text-light); flex-direction:column;">
+                                            <i data-lucide="video" style="width:48px; height:48px; margin-bottom:12px;"></i>
+                                            <span style="font-weight:600;">Adv. Harish Salve (Senior Partner)</span>
+                                            <span style="font-size:11px; opacity:0.6;">Lead Video Feed Active</span>
+                                        </div>
+                                        <span class="video-frame-name">Counselor (KNS Partner)</span>
+                                    </div>
+                                    <!-- Client Feed -->
+                                    <div class="video-frame">
+                                        <!-- Whiteboard Workspace (Toggleable) -->
+                                        <div id="video-whiteboard-canvas" style="display:none; width:100%; height:100%; background-color:#FFFFFF; position:relative;">
+                                            <canvas id="consultation-whiteboard" style="width:100%; height:100%; cursor:crosshair;"></canvas>
+                                            <div style="position:absolute; top:12px; left:12px; display:flex; gap:8px;">
+                                                <button class="btn btn-outline btn-sm" onclick="clearWhiteboard()">Clear</button>
+                                                <button class="btn btn-primary btn-sm" onclick="toggleWhiteboard(false)">Close Draw</button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Client Camera Feed -->
+                                        <div id="video-client-cam" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; background-color:#1E293B; color:var(--text-light); flex-direction:column;">
+                                            <i data-lucide="user" style="width:48px; height:48px; margin-bottom:12px;"></i>
+                                            <span style="font-weight:600;" id="video-client-name">Tata Executive Client</span>
+                                            <span style="font-size:11px; opacity:0.6;">Encryption Protocol Enabled</span>
+                                        </div>
+                                        <span class="video-frame-name">Client Remote Feed</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="video-controls">
+                                    <button id="btn-video-mic" class="control-btn" onclick="toggleVideoMic()"><i data-lucide="mic"></i></button>
+                                    <button id="btn-video-camera" class="control-btn" onclick="toggleVideoCamera()"><i data-lucide="video"></i></button>
+                                    <button class="control-btn" onclick="triggerScreenShare()"><i data-lucide="monitor"></i></button>
+                                    <button class="control-btn" onclick="toggleWhiteboard(true)"><i data-lucide="edit-3"></i></button>
+                                    <button class="control-btn active" onclick="endVideoConsultation()"><i data-lucide="phone-off"></i></button>
+                                </div>
+                                
+                                <div style="position:absolute; top:24px; left:24px; background-color:rgba(15, 23, 42, 0.7); padding:8px 12px; border-radius:6px; color:#FFFFFF; font-size:11px; display:flex; align-items:center; gap:8px;">
+                                    <span style="display:inline-block; width:8px; height:8px; background-color:var(--success); border-radius:50%;"></span>
+                                    <span>Encrypted Connection <strong>AES-256</strong></span>
+                                </div>
+                            </div>
+                            
+                            <div class="video-right-panel">
+                                <div class="ai-panel-header">
+                                    <span>Consultation Workspace</span>
+                                    <button class="btn btn-secondary btn-sm" onclick="triggerAICallSummary()">Compile AI Memo</button>
+                                </div>
+                                
+                                <!-- Tabs: Chat, Notes, E-Sign -->
+                                <div style="display:flex; border-bottom:1px solid var(--border-subtle); background-color:var(--bg-workspace);">
+                                    <button class="menu-link" style="padding:10px; font-size:12px; flex:1; text-align:center; border-radius:0;" onclick="switchVideoTab('chat')">Live Chat</button>
+                                    <button class="menu-link" style="padding:10px; font-size:12px; flex:1; text-align:center; border-radius:0;" onclick="switchVideoTab('esign')">E-Sign</button>
+                                    <button class="menu-link" style="padding:10px; font-size:12px; flex:1; text-align:center; border-radius:0;" onclick="switchVideoTab('summary')">AI Digest</button>
+                                </div>
+                                
+                                <!-- Tab Panel: Chat -->
+                                <div id="video-tab-chat" class="ai-chat-messages" style="height:250px; overflow-y:auto; padding:16px;">
+                                    <div class="ai-message assistant" style="padding:8px 12px;">
+                                        <strong>Adv. Harish Salve:</strong> Welcome to the consultation cabinet. The litigation draft is open.
+                                    </div>
+                                    <div class="ai-message user" style="padding:8px 12px;">
+                                        <strong>Tata Executive:</strong> Thank you, Senior Counsel. Reviewing the antitrust clauses.
+                                    </div>
+                                </div>
+                                
+                                <!-- Tab Panel: E-Sign Documents -->
+                                <div id="video-tab-esign" style="display:none; padding:16px; flex-direction:column; gap:12px;">
+                                    <h4 style="font-size:12px; color:var(--text-muted);">Request Live Cryptographic Signature</h4>
+                                    <div style="border:1px solid var(--border-subtle); border-radius:var(--radius-element); padding:10px; background-color:var(--bg-workspace);">
+                                        <div style="font-weight:600; font-size:12.5px; margin-bottom:4px;">Litigation_Fee_Arrangement_Draft.pdf</div>
+                                        <span style="font-size:10px; color:var(--text-muted);">Retainer Agreement - ₹1,50,000 Fee Setup</span>
+                                        <div style="display:flex; gap:6px; margin-top:8px;">
+                                            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="simulateClientESign()">Sign Now</button>
+                                            <button class="btn btn-outline btn-sm" onclick="triggerToast('Cryptographic audit certificate generated', 'success')"><i data-lucide="key"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tab Panel: AI Summary Memo -->
+                                <div id="video-tab-summary" style="display:none; padding:16px; flex-direction:column; gap:12px; overflow-y:auto;">
+                                    <h4 style="font-size:12px;">AI Consult Summary Report</h4>
+                                    <div id="ai-consult-summary-box" style="background-color: var(--primary-light); border:1px solid var(--primary-border); border-radius:var(--radius-element); padding:12px; font-size:12px; line-height:1.4;">
+                                        <p style="color:var(--text-muted); text-align:center;">Click "Compile AI Memo" to generate key points, facts, and action items in real-time.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 5: DOCUMENT MANAGEMENT & OCR -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-documents" class="workspace-view">
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>Document Repository Vault</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Securely store contracts, pleadings, and orders under local browser AES keys</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openOCRModal()">+ OCR Scanning Assistant</button>
+                            </div>
+                            
+                            <div style="display:flex; gap:12px; margin-bottom: 20px;">
+                                <input type="text" id="doc-search" class="form-control" placeholder="Search documents by tag or filename..." onkeyup="renderDocsList()">
+                                <select id="doc-folder-filter" class="form-control" style="width: 180px;" onchange="renderDocsList()">
+                                    <option value="">All Categories</option>
+                                    <option value="Contracts">Contracts</option>
+                                    <option value="Court Orders">Court Orders</option>
+                                    <option value="Evidence">Evidence Briefs</option>
+                                    <option value="Invoices">Billing / Receipts</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display:grid; grid-template-columns: 240px 1fr; gap:24px;">
+                                <!-- Folders Sidebar -->
+                                <div style="border-right: 1px solid var(--border-subtle); padding-right:12px;">
+                                    <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:12px;">Repository Folders</h4>
+                                    <div style="display:flex; flex-direction:column; gap:4px;">
+                                        <button class="menu-link" style="color:var(--text-primary);" onclick="filterDocFolder('')"><i data-lucide="folders"></i>All Folders</button>
+                                        <button class="menu-link" style="color:var(--text-primary);" onclick="filterDocFolder('Contracts')"><i data-lucide="folder"></i>Contracts</button>
+                                        <button class="menu-link" style="color:var(--text-primary);" onclick="filterDocFolder('Court Orders')"><i data-lucide="folder"></i>Court Orders</button>
+                                        <button class="menu-link" style="color:var(--text-primary);" onclick="filterDocFolder('Evidence')"><i data-lucide="folder"></i>Evidence Briefs</button>
+                                        <button class="menu-link" style="color:var(--text-primary);" onclick="filterDocFolder('Invoices')"><i data-lucide="folder"></i>Billing / Receipts</button>
+                                    </div>
+                                </div>
+                                <!-- Files Directory Grid -->
+                                <div>
+                                    <div id="docs-grid-container" class="grid-3">
+                                        <!-- Files filled dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 6: AI DRAFTING ASSISTANT -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-ai-drafting" class="workspace-view">
+                        <div class="ai-workspace">
+                            <!-- Left Sidebar: Context and Timeline -->
+                            <div class="ai-sidebar">
+                                <div class="ai-panel-header">Case Context</div>
+                                <div style="padding: 16px; display:flex; flex-direction:column; gap:16px;">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label class="form-label">Link Dispute Matter</label>
+                                        <select id="ai-draft-case-select" class="form-control" onchange="loadCaseContextForAI()">
+                                            <option value="">Select Case File...</option>
+                                            <!-- Loaded dynamically -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div style="border-top:1px solid var(--border-subtle); padding-top:16px;">
+                                        <h4 style="font-size:12px; margin-bottom:8px;">Linked Case Chronology</h4>
+                                        <div id="ai-draft-timeline-box" style="font-size:11px; display:flex; flex-direction:column; gap:8px; max-height: 200px; overflow-y:auto;">
+                                            <p style="color:var(--text-muted);">Please select a matter link context.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="border-top:1px solid var(--border-subtle); padding-top:16px;">
+                                        <h4 style="font-size:12px; margin-bottom:8px;">Linked Briefs</h4>
+                                        <div id="ai-draft-docs-box" style="font-size:11px; display:flex; flex-direction:column; gap:6px;">
+                                            <p style="color:var(--text-muted);">None linked.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Center: ChatGPT layout -->
+                            <div class="ai-center">
+                                <div class="ai-panel-header">
+                                    <span>AI Assistant Chat</span>
+                                    <span class="badge badge-info"><i data-lucide="shield"></i> Attorney Privilege Vault</span>
+                                </div>
+                                
+                                <div id="ai-drafting-messages" class="ai-chat-messages">
+                                    <div class="ai-message assistant">
+                                        Hello. I am the KNS Legal Drafting Copilot. Please select a case matter in the left panel to upload core litigation context, or choose a prompt shortcut below to quickly construct a filing petition.
+                                    </div>
+                                </div>
+                                
+                                <!-- Suggested Prompts -->
+                                <div class="ai-prompt-suggestions">
+                                    <button class="btn btn-outline btn-sm" onclick="triggerAIPrompt('Draft a Writ Petition for Tata CCI Appeal')">Draft Plaint</button>
+                                    <button class="btn btn-outline btn-sm" onclick="triggerAIPrompt('Draft a Cease and Desist Notice for Patent Breach')">Draft Notice</button>
+                                    <button class="btn btn-outline btn-sm" onclick="triggerAIPrompt('Suggest relief claims under Arbitration Act Section 9')">Suggest Relief</button>
+                                    <button class="btn btn-outline btn-sm" onclick="triggerAIPrompt('Perform limitation period audit under Act 1963')">Check Limitation</button>
+                                    <button class="btn btn-outline btn-sm" onclick="triggerAIPrompt('Compare petition versions and generate diff report')">Compare Versions</button>
+                                </div>
+                                
+                                <!-- Input Area -->
+                                <div class="ai-input-area">
+                                    <input type="text" id="ai-draft-chat-input" class="form-control" placeholder="Ask AI to write a petition clause, look up Limitation Acts, or suggest remedies..." onkeydown="if(event.key==='Enter') executeAIChat()">
+                                    <button class="btn btn-primary" onclick="executeAIChat()"><i data-lucide="send"></i></button>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Workspace: Generated Draft & Precedents -->
+                            <div class="ai-right">
+                                <div class="ai-panel-header">
+                                    <span>Generated Legal Brief</span>
+                                    <div>
+                                        <button class="icon-badge-btn" style="padding:4px;" onclick="exportAIDraftToPDF()" title="Export PDF"><i data-lucide="file-text"></i></button>
+                                        <button class="icon-badge-btn" style="padding:4px;" onclick="exportAIDraftToWord()" title="Export Docx"><i data-lucide="file-output"></i></button>
+                                    </div>
+                                </div>
+                                <div style="padding:16px; flex:1; display:flex; flex-direction:column; overflow-y:auto; gap:16px;">
+                                    <textarea id="ai-draft-rich-editor" class="form-control" style="flex:1; font-family: monospace; font-size:12px; line-height:1.5; min-height: 250px; background-color: #FAF5EF; border:1px solid #E4D8C4; color:#2C2210;" placeholder="Generated clauses will render here for editing..."></textarea>
+                                    
+                                    <div>
+                                        <h4 style="font-size:12.5px; margin-bottom:8px;">Precedent References (Supreme Court)</h4>
+                                        <div style="font-size:11px; display:flex; flex-direction:column; gap:6px;">
+                                            <div style="border:1px solid var(--border-subtle); padding:8px; border-radius:4px; background-color: var(--bg-workspace);">
+                                                <strong>Tata Consultancy Services vs. State of Andhra Pradesh (2005)</strong>
+                                                <p style="color:var(--text-muted); margin-top:2px;">Precedent validating intellectual goods transaction tax rules under Article 366.</p>
+                                            </div>
+                                            <div style="border:1px solid var(--border-subtle); padding:8px; border-radius:4px; background-color: var(--bg-workspace);">
+                                                <strong>CCI vs. Steel Authority of India Ltd. (2010)</strong>
+                                                <p style="color:var(--text-muted); margin-top:2px;">Establishes parameters for appealability of initial notices under Section 26(1).</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Side-by-Side Version Comparator -->
+                                    <div id="ai-version-compare-box" style="display:none; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                                        <h4 style="font-size:12px; margin-bottom:8px;">Version Comparison Review (v1 vs v2)</h4>
+                                        <div class="diff-container">
+                                            <div>
+                                                <div style="font-size:10px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Original Petitions Draft (v1)</div>
+                                                <div class="diff-pane deleted" id="ai-diff-v1">...</div>
+                                            </div>
+                                            <div>
+                                                <div style="font-size:10px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">AI Optimizations Draft (v2)</div>
+                                                <div class="diff-pane added" id="ai-diff-v2">...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 7: LEGAL RESEARCH ENGINE -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-research" class="workspace-view">
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>AI-Powered Legal Search Engine</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Search acts, sections, judgments, and legal precedents across high courts and the Supreme Court</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid-3" style="margin-bottom: 20px; align-items: flex-end;">
+                                <div class="form-group" style="grid-column: span 2; margin-bottom:0;">
+                                    <label class="form-label">Search Query (Citations, Judgments, Acts)</label>
+                                    <input type="text" id="research-query-input" class="form-control" placeholder="Enter keywords e.g., 'Article 14 equal protection', 'Competition Act Section 4', 'Arbitration stay'..." value="Section 138 Negotiable Instruments Act">
+                                </div>
+                                <button class="btn btn-primary" style="height: 42px;" onclick="executeLegalSearch()"><i data-lucide="search"></i> Search Archive</button>
+                            </div>
+                            
+                            <div style="display:flex; gap:12px; margin-bottom:24px;">
+                                <select id="research-court-filter" class="form-control btn-sm">
+                                    <option value="">All Courts</option>
+                                    <option value="Supreme Court">Supreme Court of India</option>
+                                    <option value="Delhi High Court">Delhi High Court</option>
+                                    <option value="Bombay High Court">Bombay High Court</option>
+                                </select>
+                                <select id="research-year-filter" class="form-control btn-sm" style="width:120px;">
+                                    <option value="">All Years</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                </select>
+                                <input type="text" id="research-judge-filter" class="form-control btn-sm" style="width:180px;" placeholder="Judge Name...">
+                            </div>
+                            
+                            <div id="research-results-container" style="display:flex; flex-direction:column; gap:16px;">
+                                <!-- Dynamic Research Results -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 8: KANBAN WORKFLOW BOARD -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-kanban" class="workspace-view">
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>Workflow Kanban Desk</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Track administrative operations, approvals, filings, and drafting briefs across firm lawyers</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openAddTaskModal()">+ Add New Task</button>
+                            </div>
+                            
+                            <div class="kanban-board">
+                                <!-- Col 1: To Do -->
+                                <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'todo')">
+                                    <div class="kanban-col-header">
+                                        <span class="kanban-col-title"><span style="color:var(--primary);">•</span> To Do / Intake</span>
+                                        <span id="kanban-cnt-todo" class="kanban-col-count">0</span>
+                                    </div>
+                                    <div id="kanban-list-todo" class="kanban-list"></div>
+                                </div>
+                                
+                                <!-- Col 2: In Progress -->
+                                <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'inprogress')">
+                                    <div class="kanban-col-header">
+                                        <span class="kanban-col-title"><span style="color:var(--warning);">•</span> In Progress</span>
+                                        <span id="kanban-cnt-inprogress" class="kanban-col-count">0</span>
+                                    </div>
+                                    <div id="kanban-list-inprogress" class="kanban-list"></div>
+                                </div>
+                                
+                                <!-- Col 3: Review / Approval -->
+                                <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'review')">
+                                    <div class="kanban-col-header">
+                                        <span class="kanban-col-title"><span style="color:var(--info);">•</span> Review & Audit</span>
+                                        <span id="kanban-cnt-review" class="kanban-col-count">0</span>
+                                    </div>
+                                    <div id="kanban-list-review" class="kanban-list"></div>
+                                </div>
+                                
+                                <!-- Col 4: Completed -->
+                                <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'completed')">
+                                    <div class="kanban-col-header">
+                                        <span class="kanban-col-title"><span style="color:var(--success);">•</span> Filed & Closed</span>
+                                        <span id="kanban-cnt-completed" class="kanban-col-count">0</span>
+                                    </div>
+                                    <div id="kanban-list-completed" class="kanban-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 9: FINANCIALS & ACCOUNTS -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-accounts" class="workspace-view">
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>Billing & Invoicing Ledger</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Generate client retainer invoices, calculate GST fees, and review revenue reports</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openInvoiceGenModal()">+ Create Retainer Invoice</button>
+                            </div>
+                            
+                            <div class="grid-3" style="margin-bottom:24px;">
+                                <div class="stat-card" style="margin-bottom:0;">
+                                    <span class="stat-label">TOTAL REVENUE (FY26)</span>
+                                    <span class="stat-value">₹24,80,000</span>
+                                    <span style="font-size:11px; color:var(--success); font-weight:600;">+24% vs last FY</span>
+                                </div>
+                                <div class="stat-card" style="margin-bottom:0;">
+                                    <span class="stat-label">OUTSTANDING RETENTION</span>
+                                    <span class="stat-value">₹4,20,000</span>
+                                    <span style="font-size:11px; color:var(--warning); font-weight:600;">6 Invoices Outstanding</span>
+                                </div>
+                                <div class="stat-card" style="margin-bottom:0;">
+                                    <span class="stat-label">GST DISBURSEMENT (18%)</span>
+                                    <span class="stat-value">₹3,78,000</span>
+                                    <span style="font-size:11px; color:var(--text-muted);">Quarterly tax due: July 31</span>
+                                </div>
+                            </div>
+                            
+                            <div class="table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice ID</th>
+                                            <th>Corporate Client</th>
+                                            <th>Subject / Matter</th>
+                                            <th>Consultant Fee</th>
+                                            <th>GST Tax (18%)</th>
+                                            <th>Status</th>
+                                            <th>Date Generated</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoices-tbody">
+                                        <!-- JS load invoices -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 10: HR MODULE -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-hr" class="workspace-view">
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div>
+                                    <h2>Human Resources & Roster</h2>
+                                    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">Manage advocate payroll tiers, leaves approvals, and daily workspace attendance</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid-2" style="margin-bottom: 24px;">
+                                <div>
+                                    <h4>Roster Directory & Attendance</h4>
+                                    <div class="table-wrapper" style="margin-top:12px;">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Staff Member</th>
+                                                    <th>Role</th>
+                                                    <th>Daily Attendance</th>
+                                                    <th>Leave Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="hr-staff-tbody">
+                                                <!-- Dynamic staff roster -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4>Lawyer Performance Metrics</h4>
+                                    <div class="table-wrapper" style="margin-top:12px;">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Advocate</th>
+                                                    <th>Cases Handled</th>
+                                                    <th>Hours Logged</th>
+                                                    <th>Success Ratio</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Adv. Harish Salve</strong></td>
+                                                    <td>14 cases</td>
+                                                    <td>180 hrs</td>
+                                                    <td><span class="badge badge-success">88% Wins</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Adv. Abhishek Singhvi</strong></td>
+                                                    <td>18 cases</td>
+                                                    <td>210 hrs</td>
+                                                    <td><span class="badge badge-success">82% Wins</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Adv. Pallavi Shroff</strong></td>
+                                                    <td>12 cases</td>
+                                                    <td>140 hrs</td>
+                                                    <td><span class="badge badge-success">85% Wins</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -------------------------------------------------- -->
+                    <!-- VIEW 11: ADMINISTRATION SETTINGS -->
+                    <!-- -------------------------------------------------- -->
+                    <div id="view-admin" class="workspace-view">
+                        <div class="grid-2">
+                            <!-- Role Permissions Matrix -->
+                            <div class="card">
+                                <div class="card-title-bar">
+                                    <h3>Role Based Access Permissions Matrix</h3>
+                                    <button class="btn btn-primary btn-sm" onclick="savePermissionsMatrix()">Save Matrix</button>
+                                </div>
+                                <div class="table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Module Access</th>
+                                                <th>Partner</th>
+                                                <th>Associate</th>
+                                                <th>Client</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Case File Edits</td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>AI Drafting Core</td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Accounts & Invoices</td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox"></td>
+                                                <td><input type="checkbox"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Upload KYC docs</td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox" checked></td>
+                                            </tr>
+                                            <tr>
+                                                <td>System Backup Logs</td>
+                                                <td><input type="checkbox" checked></td>
+                                                <td><input type="checkbox"></td>
+                                                <td><input type="checkbox"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Chronological Audit Trail -->
+                            <div class="card">
+                                <div class="card-title-bar">
+                                    <h3>Chronological Security Audit Trail</h3>
+                                    <span class="badge badge-danger"><i data-lucide="lock"></i> Deletion Blocked</span>
+                                </div>
+                                <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Immutable log record of corporate logins, draft revisions, and file downloads.</p>
+                                <div class="table-wrapper" style="max-height: 300px; overflow-y:auto;">
+                                    <table class="data-table" id="audit-trail-table">
+                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Action Detail</th>
+                                                <th>Timestamp</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="audit-trail-tbody">
+                                            <!-- Dynamic audit entries -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+       MODALS, DRAWERS, AND OVERLAY WIDGETS
+       ========================================================================== -->
+
+    <!-- Modal: Profile / Workspace Preferences -->
+    <div id="modal-profile" class="overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Workspace Preferences</h3>
+                <button class="modal-close-btn" onclick="closeProfileModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Firm Workspace Node</label>
+                <input type="text" class="form-control" value="KNS Mumbai Main Office" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Active Counselor Signature</label>
+                <input type="text" class="form-control" id="profile-sig-name" value="Partner Advocate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cryptographic Seal ID</label>
+                <input type="text" class="form-control" value="AES-SHA256-KNS-998821" readonly style="font-family:monospace;">
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:24px;">
+                <button class="btn btn-outline" onclick="processLogout()"><i data-lucide="log-out"></i> Sign Out</button>
+                <button class="btn btn-primary" onclick="saveProfilePreferences()">Save Config</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Client Intake Registration -->
+    <div id="modal-client-intake" class="overlay">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Client Registration Intake</h3>
+                <button class="modal-close-btn" onclick="closeClientRegModal()">&times;</button>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Intake Name</label>
+                    <input type="text" id="intake-name" class="form-control" placeholder="e.g., Reliance Retail Ltd.">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category Type</label>
+                    <select id="intake-type" class="form-control">
+                        <option value="Corporate">Corporate Corporate</option>
+                        <option value="Individual">Individual Litigant</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Contact Email</label>
+                    <input type="email" id="intake-email" class="form-control" placeholder="legal@reliance.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Register</label>
+                    <input type="text" id="intake-phone" class="form-control" placeholder="+91 9988112233">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tax GST Reg / Corporate ID</label>
+                <input type="text" id="intake-gst" class="form-control" placeholder="27AAAAC1234F1Z5">
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Permanent PAN ID</label>
+                    <input type="text" id="intake-pan" class="form-control" placeholder="AAACB1234Z">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Aadhaar Identification No</label>
+                    <input type="text" id="intake-aadhaar" class="form-control" placeholder="4567 8901 2345">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Emergency Address</label>
+                <textarea id="intake-address" class="form-control" placeholder="10th Floor, Maker Chambers, Nariman Point, Mumbai"></textarea>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="submitClientIntake()">Complete Ingestion Registration</button>
+        </div>
+    </div>
+
+    <!-- Modal: Case Creation Docket -->
+    <div id="modal-case-create" class="overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create Case File Docket</h3>
+                <button class="modal-close-btn" onclick="closeCaseCreateModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Matter Client Link</label>
+                <select id="case-create-client" class="form-control">
+                    <!-- Options loaded by JS -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Dispute Title / Subject</label>
+                <input type="text" id="case-create-title" class="form-control" placeholder="e.g., Tata Sons vs CCI Patent Dispute">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Jurisdiction Court</label>
+                <input type="text" id="case-create-court" class="form-control" placeholder="e.g., Supreme Court of India Hall 4">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Lead Advocate Partner</label>
+                <select id="case-create-lead" class="form-control">
+                    <option value="Adv. Harish Salve">Adv. Harish Salve</option>
+                    <option value="Adv. Abhishek Singhvi">Adv. Abhishek Singhvi</option>
+                    <option value="Adv. Pallavi Shroff">Adv. Pallavi Shroff</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="submitCaseDocket()">Issue Judicial Docket File</button>
+        </div>
+    </div>
+
+    <!-- Modal: Schedule Consultation Call -->
+    <div id="modal-consultation-schedule" class="overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Schedule Legal Consultation</h3>
+                <button class="modal-close-btn" onclick="closeConsultationModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Litigant Client</label>
+                <select id="cons-client-select" class="form-control">
+                    <!-- Options loaded -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Consultant Counsel</label>
+                <select id="cons-lawyer-select" class="form-control">
+                    <option value="Adv. Harish Salve">Adv. Harish Salve (Senior Partner)</option>
+                    <option value="Adv. Abhishek Singhvi">Adv. Abhishek Singhvi (Partner)</option>
+                    <option value="Adv. Pallavi Shroff">Adv. Pallavi Shroff (Associate)</option>
+                </select>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Meeting Date</label>
+                    <input type="date" id="cons-date" class="form-control" value="2026-07-20">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Filing Time</label>
+                    <input type="time" id="cons-time" class="form-control" value="10:30">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Meeting Mode</label>
+                    <select id="cons-type" class="form-control">
+                        <option value="Video Conference">Secure Video Call</option>
+                        <option value="In-Person chamber">In-Person chamber</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Consultation Fee (₹)</label>
+                    <input type="number" id="cons-fee" class="form-control" value="15000">
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="submitConsultationBooking()">Schedule Retainer Call</button>
+        </div>
+    </div>
+
+    <!-- Modal: Add Kanban Task -->
+    <div id="modal-task-add" class="overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Workflow Task</h3>
+                <button class="modal-close-btn" onclick="closeAddTaskModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Task Assignment Detail</label>
+                <input type="text" id="task-title" class="form-control" placeholder="e.g., Draft Plaint brief clauses">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Task Description</label>
+                <textarea id="task-desc" class="form-control" placeholder="Core details of petition or administrative approval task..."></textarea>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Task Priority</label>
+                    <select id="task-priority" class="form-control">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Completion Limit</label>
+                    <input type="date" id="task-date" class="form-control" value="2026-07-22">
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="submitKanbanTask()">Publish Operational Task</button>
+        </div>
+    </div>
+
+    <!-- Modal: Retainer Invoice Generator -->
+    <div id="modal-invoice-gen" class="overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Generate Client Retainer Invoice</h3>
+                <button class="modal-close-btn" onclick="closeInvoiceGenModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Target Client Entity</label>
+                <select id="inv-client-select" class="form-control">
+                    <!-- Loaded dynamically -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Invoice Matter Subject</label>
+                <input type="text" id="inv-subject" class="form-control" placeholder="e.g., Retainer Fee - Supreme Court Anti-Trust Suit">
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Consulting Base Fee (₹)</label>
+                    <input type="number" id="inv-fee" class="form-control" value="120000" onkeyup="updateInvoiceGstCalc()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">GST Tax Surcharge (18%)</label>
+                    <input type="text" id="inv-gst-val" class="form-control" value="₹21,600" readonly>
+                </div>
+            </div>
+            <div style="background-color:var(--bg-workspace); border: 1px solid var(--border-subtle); padding:12px; border-radius:var(--radius-element); font-size:12px; margin-bottom:20px;">
+                <strong>Invoice Total Fee (Including GST):</strong> <span id="inv-total-val" style="float:right; font-weight:700; color:var(--primary);">₹1,41,600</span>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="submitInvoiceGeneration()">Publish Billing Invoice</button>
+        </div>
+    </div>
+
+    <!-- Modal: OCR Scanning Assistant -->
+    <div id="modal-ocr" class="overlay">
+        <div class="modal" style="max-width:700px;">
+            <div class="modal-header">
+                <h3>OCR Document Scanning Assistant</h3>
+                <button class="modal-close-btn" onclick="closeOCRModal()">&times;</button>
+            </div>
+            <div style="border: 2px dashed var(--primary-border); border-radius:var(--radius-card); padding:30px; text-align:center; background-color: var(--primary-light); cursor:pointer;" onclick="simulateOCRFileUpload()">
+                <i data-lucide="upload-cloud" style="width:48px; height:48px; color:var(--primary); margin-bottom:12px;"></i>
+                <h4 id="ocr-upload-lbl">Click to Select Legal PDF or evidence image</h4>
+                <p style="color:var(--text-muted); font-size:12px; margin-top:4px;">Upload agreements, notices, or judicial dockets for automated text conversion</p>
+                <input type="file" id="ocr-file-input" style="display:none;" onchange="handleOCRFileSelected()">
+            </div>
+            
+            <!-- Scanning Progress Bar -->
+            <div id="ocr-progress-container" style="display:none; margin-top:20px;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+                    <span>AI OCR Parsing character arrays...</span>
+                    <span id="ocr-progress-lbl">40%</span>
+                </div>
+                <div style="height:8px; background-color:var(--border-subtle); border-radius:4px; overflow:hidden;">
+                    <div id="ocr-progress-bar" style="height:100%; background-color:var(--primary); width:40%; transition: width 0.4s;"></div>
+                </div>
+            </div>
+            
+            <!-- Result Panels -->
+            <div id="ocr-results-panel" style="display:none; margin-top:20px; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span>OCR Recognition Score: <strong class="badge badge-success" id="ocr-confidence-score">99.2% Accuracy</strong></span>
+                    <button class="btn btn-outline btn-sm" onclick="insertOCROutputToAIDraft()"><i data-lucide="copy"></i> Send to AI Draft Assistant</button>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">OCR Scan Highlights</div>
+                        <div style="border: 1px solid var(--border-subtle); background-color: var(--bg-workspace); padding:10px; border-radius:4px; height: 180px; font-family: monospace; font-size:11px; overflow-y:auto;" id="ocr-text-original">
+                            <!-- Raw original markup highlight -->
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Editable Refined Content</div>
+                        <textarea id="ocr-text-editable" class="form-control" style="height: 180px; font-family: monospace; font-size:11px; line-height:1.4;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Drawer -->
+    <div id="notification-drawer" class="notification-drawer">
+        <div class="drawer-header">
+            <h3>Notification Centre</h3>
+            <button class="modal-close-btn" onclick="toggleNotificationDrawer()">&times;</button>
+        </div>
+        <div class="drawer-body" id="drawer-notif-list">
+            <!-- Programmatic notifications loaded here -->
+        </div>
+    </div>
+
+    <!-- Command Palette Search Overlay -->
+    <div id="search-palette-overlay" class="overlay" style="align-items: flex-start; padding-top: 10%; z-index: 1009;" onclick="closeSearchPalette()">
+        <div class="search-palette" onclick="event.stopPropagation()">
+            <div class="palette-input-wrapper">
+                <i data-lucide="search"></i>
+                <input type="text" id="palette-search-input" class="palette-input" placeholder="Type a client, case reference, document, or shortcut command..." onkeyup="queryPalette()">
+            </div>
+            
+            <div class="palette-results" id="palette-results-container">
+                <!-- Group: Actions -->
+                <div class="palette-group-title">Command Shortcuts</div>
+                <div class="palette-item" onclick="switchView('ai-drafting'); closeSearchPalette();">
+                    <span class="palette-item-icon"><i data-lucide="sparkles"></i></span>
+                    <div class="palette-item-info">
+                        <span class="palette-item-title">Start AI legal drafting assistant</span>
+                        <span class="palette-item-desc">Draft plaint, notices, verify precedents</span>
+                    </div>
+                </div>
+                <div class="palette-item" onclick="openClientRegModal(); closeSearchPalette();">
+                    <span class="palette-item-icon"><i data-lucide="user-plus"></i></span>
+                    <div class="palette-item-info">
+                        <span class="palette-item-title">Add Client Intake Record</span>
+                        <span class="palette-item-desc">Register GST, PAN, Aadhaar credentials</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="palette-footer">
+                <span>Select <kbd>Enter</kbd></span>
+                <span>Navigate <kbd>↑↓</kbd></span>
+                <span>Close <kbd>ESC</kbd></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Core App Interaction Logic script -->
+    <script src="app.js"></script>
+</body>
+</html>
