@@ -411,6 +411,59 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--primary-light);
     color: var(--primary);
 }
+.profile-header-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: var(--radius-pill);
+    transition: var(--transition-fast);
+}
+
+.profile-header-container:hover {
+    background-color: var(--bg-workspace);
+}
+
+.profile-header-avatar {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #3b82f6);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.profile-header-details {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.profile-header-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.profile-header-role {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.profile-header-settings-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
 
 .icon-badge-dot {
     position: absolute;
@@ -1514,6 +1567,15 @@ textarea.form-control {
     .search-trigger-btn span, 
     .search-trigger-btn kbd {
         display: none !important;
+    }
+    /* Hide name/role text on mobile, keep just the avatar + settings icon */
+    .profile-header-details {
+    display: none;
+    }
+
+    .profile-header-container {
+        gap: 0;
+        padding: 4px;
     }
     
     /* Compact dashboard widgets */

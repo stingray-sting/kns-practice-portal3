@@ -126,6 +126,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderInvoicesTable();
     renderHRRoster();
     renderAuditTrail();
+    renderKYCTable();
     populateSelectDropdowns();
 });
 // SPA View Switcher
@@ -394,6 +395,49 @@ function renderCRMTable() {
         `;
     });
     
+    lucide.createIcons();
+}
+// KYC Verification Table Renderer
+function renderKYCTable() {
+    const tbody = document.getElementById('kyc-tbody');
+    const searchVal = document.getElementById('kyc-search').value.toLowerCase();
+    const statusVal = document.getElementById('kyc-status-filter').value;
+
+    tbody.innerHTML = '';
+
+    const filtered = state.clients.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(searchVal) ||
+                               c.pan.toLowerCase().includes(searchVal) ||
+                               c.aadhaar.toLowerCase().includes(searchVal);
+        const matchesStatus = statusVal === '' || c.verified === statusVal;
+        return matchesSearch && matchesStatus;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:24px;">No matching KYC records found.</td></tr>`;
+        return;
+    }
+
+    filtered.forEach(c => {
+        const badgeClass = c.verified === 'Approved' ? 'badge-success' : 'badge-warning';
+        const ocrClass = c.verified === 'Approved' ? 'badge-success' : 'badge-warning';
+        const ocrLabel = c.verified === 'Approved' ? 'Matched' : 'Awaiting Scan';
+
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${c.name}</strong></td>
+                <td><code style="font-size:12px;">${c.pan}</code></td>
+                <td>${c.aadhaar}</td>
+                <td>${c.gst}</td>
+                <td><span class="badge ${ocrClass}">${ocrLabel}</span></td>
+                <td><span class="badge ${badgeClass}">${c.verified}</span></td>
+                <td>
+                    <button class="btn btn-outline btn-sm" onclick="openCRMDetails('${c.id}')"><i data-lucide="folder"></i> Review</button>
+                </td>
+            </tr>
+        `;
+    });
+
     lucide.createIcons();
 }
 
